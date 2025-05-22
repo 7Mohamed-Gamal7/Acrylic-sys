@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}تم تسجيل الخروج - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h4 class="card-title">تم تسجيل الخروج بنجاح</h4>
+                <p class="card-text">شكرًا لك على استخدام نظام Acrylic.</p>
+                <a href="{% url 'login' %}" class="btn btn-primary">تسجيل الدخول مرة أخرى</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

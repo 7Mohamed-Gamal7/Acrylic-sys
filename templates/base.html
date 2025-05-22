@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+{% load static %} <!-- لتحميل الملفات الثابتة لاحقًا (CSS, JS) -->
+<html lang="ar" dir="rtl"> <!-- تحديد اللغة العربية واتجاه النص -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}نظام Acrylic{% endblock %}</title> <!-- عنوان الصفحة الافتراضي ويمكن تغييره -->
+
+    <!-- ربط Bootstrap 5 (CSS) للستايل - من CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"> <!-- Bootstrap Icons -->
+
+    <!-- يمكنك إضافة ملف CSS خاص بك هنا لاحقًا -->
+    <!-- <link rel="stylesheet" href="{% static 'css/custom.css' %}"> -->
+
+    {% block extra_head %}{% endblock %} <!-- مكان لإضافة عناصر إضافية في الـ head من القوالب الفرعية -->
+</head>
+<body>
+    <!-- شريط التنقل العلوي (Navbar) بسيط باستخدام Bootstrap -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-box-fill me-2"></i> <!-- أيقونة بسيطة -->
+                Acrylic_sys
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <!-- رابط افتراضي للصفحة الرئيسية لاحقاً -->
+                        <a class="nav-link active" aria-current="page" href="#">الرئيسية</a>
+                    </li>
+                    <li class="nav-item">
+                         <!-- رابط لصفحة قائمة الموظفين التي سننشئها -->
+                        <a class="nav-link" href="{% url 'employees:employee_list' %}">الموظفين</a>
+                    </li>
+                    <!-- يمكنك إضافة روابط أخرى هنا لاحقًا (الحضور، الرواتب، ...) -->
+                </ul>
+                 <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                 <i class="bi bi-person-circle me-1"></i> {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <!-- <li><a class="dropdown-item" href="#">ملف شخصي</a></li> -->
+                                {% if user.is_superuser %}
+                                    <li><a class="dropdown-item" href="{% url 'admin:index' %}" target="_blank">لوحة التحكم</a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <!-- رابط تسجيل الخروج (سنحتاج لإنشاء الـ view والـ url له لاحقًا) -->
+                                    <form method="post" action="{% url 'logout' %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item">تسجيل الخروج</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <!-- رابط تسجيل الدخول (سنحتاج لإنشاء الـ view والـ url له لاحقًا) -->
+                            <a class="nav-link" href="{% url 'login' %}">تسجيل الدخول</a>        
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- المحتوى الرئيسي للصفحة -->
+    <div class="container">
+        {% block content %}
+            <!-- محتوى الصفحة المحدد سيتم إدراجه هنا بواسطة القوالب الفرعية -->
+        {% endblock %}
+    </div>
+
+    <!-- تذييل بسيط (Footer) -->
+    <footer class="mt-5 py-3 bg-light text-center">
+        <div class="container">
+            <span class="text-muted">Acrylic_sys © {% now "Y" %}</span>
+        </div>
+    </footer>
+
+    <!-- ربط Bootstrap 5 (JavaScript Bundle) - ضروري للمكونات التفاعلية مثل الـ Dropdown -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+    {% block extra_scripts %}{% endblock %} <!-- مكان لإضافة سكربتات إضافية من القوالب الفرعية -->
+</body>
+</html>

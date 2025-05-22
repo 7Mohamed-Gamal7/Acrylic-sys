@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}إضافة موظف جديد - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'employees:employee_list' %}">قائمة الموظفين</a></li>
+            <li class="breadcrumb-item active" aria-current="page">إضافة موظف جديد</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm">
+         <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="bi bi-person-plus-fill me-2"></i>إضافة موظف جديد</h4>
+        </div>
+        <div class="card-body">
+            {% include "employees/_employee_form.html" with form=form submit_button_text="إضافة الموظف" cancel_url=cancel_url|default:"/employees/" %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+    {# تضمين السكربتات من القالب الجزئي للنموذج #}
+    {% include "employees/_employee_form.html" only %} {# Use 'only' if the script block name is different or not needed #}
+    {{ block.super }} {# Include any scripts from base.html #}
+{% endblock %}

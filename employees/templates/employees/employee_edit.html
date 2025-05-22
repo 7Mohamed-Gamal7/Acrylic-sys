@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل بيانات: {{ employee.full_name }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+     <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'employees:employee_list' %}">قائمة الموظفين</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'employees:employee_detail' pk=employee.pk %}">{{ employee.full_name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">تعديل البيانات</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark">
+             <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i>تعديل بيانات الموظف: {{ employee.full_name }}</h4>
+        </div>
+        <div class="card-body">
+             {% include "employees/_employee_form.html" with form=form submit_button_text="حفظ التعديلات" cancel_url=employee.get_absolute_url|default:"employees:employee_list" %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+ {% block extra_scripts %}
+    {# تضمين السكربتات من القالب الجزئي للنموذج #}
+    {% include "employees/_employee_form.html" only %}
+    {{ block.super }}
+{% endblock %}
