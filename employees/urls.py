@@ -1,19 +1,23 @@
-# المسار: Acrylic_sys/apps/employees/urls.py
-
 from django.urls import path
-from . import views # استيراد الـ views من نفس المجلد
+from django.contrib.auth.decorators import login_required
+from . import views
 
-# تحديد اسم للـ url pattern لتسهيل الرجوع إليه من القوالب
-# هذا الاسم يجب أن يكون فريدًا على مستوى التطبيق
-app_name = 'employees' # اختياري لكن موصى به بشدة
+app_name = 'employees'
 
 urlpatterns = [
-    # المسار: /employees/ (عندما يتم تضمينه من المشروع الرئيسي)
-    # الـ View: الدالة employee_list_view من views.py
-    # الاسم: 'employee_list' (هذا الاسم هو الذي استخدمناه في القوالب {% url 'employee_list' %})
-    path('', views.employee_list_view, name='employee_list'),
-    path('<int:pk>/', views.employee_detail_view, name='employee_detail'),
-    path('add/', views.EmployeeCreateView.as_view(), name='employee_add'),
-    path('<int:pk>/edit/', views.EmployeeUpdateView.as_view(), name='employee_edit'),
-  
+    # Employee URLs
+    path('', login_required(views.EmployeeListView.as_view()), name='employee_list'),
+    path('search/', login_required(views.employee_search), name='employee_search'),
+    path('add/', login_required(views.EmployeeCreateView.as_view()), name='employee_add'),
+    path('<int:pk>/', login_required(views.EmployeeDetailView.as_view()), name='employee_detail'),
+    path('<int:pk>/edit/', login_required(views.EmployeeUpdateView.as_view()), name='employee_edit'),
+    path('<int:pk>/delete/', login_required(views.EmployeeDeleteView.as_view()), name='employee_delete'),
+    
+    # Department URLs (يمكن إضافتها لاحقاً)
+    # path('departments/', login_required(views.DepartmentListView.as_view()), name='department_list'),
+    # path('departments/add/', login_required(views.DepartmentCreateView.as_view()), name='department_add'),
+    
+    # Job Title URLs  (يمكن إضافتها لاحقاً)
+    # path('job-titles/', login_required(views.JobTitleListView.as_view()), name='jobtitle_list'),
+    # path('job-titles/add/', login_required(views.JobTitleCreateView.as_view()), name='jobtitle_add'),
 ]

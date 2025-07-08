@@ -1,18 +1,18 @@
-# المسار: Acrylic_sys/apps/employees/forms.py
-
 from django import forms
-from .models import Employee, Department, JobTitle # استيراد النماذج اللازمة
+from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
+from django.utils import timezone
+from .models import Employee, Department, JobTitle
 
 class EmployeeForm(forms.ModelForm):
-    # --- تخصيص الحقول لجعلها تستخدم عناصر تحكم التاريخ في HTML5 ---
-    date_of_birth = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        required=False, # الحقل غير إجباري كما هو محدد في النموذج
-        label="تاريخ الميلاد"
-    )
-    hiring_date = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        label="تاريخ التعيين"
+    class Meta:
+        model = Employee
+        exclude = ['created_at', 'updated_at']
+        widgets = {
+            'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'hiring_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'insurance_subscription_start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
     )
     insurance_subscription_start_date = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date'}),

@@ -1,100 +1,99 @@
-# المسار: Acrylic_sys/apps/employees/views.py
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from django.contrib import messages
+from django.utils.translation import gettext_lazy as _
+from .models import Employee, Department, JobTitle
+from .forms import EmployeeForm
 
-from django.shortcuts import get_object_or_404, render
-from django.contrib.auth.decorators import login_required # لاستلزام تسجيل الدخول للوصول للـ view
-from .models import Employee # استيراد نموذج الموظف
+class EmployeeListView(LoginRequiredMixin, ListView):
+    model = Employee
+    template_name = 'employees/employee_list.html'
+    context_object_name = 'employees'
+    paginate_by = 20
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.GET.get('department'):
+            queryset = queryset.filter(department__id=self.request.GET['department'])
+        if self.request.GET.get('is_active') == 'true':
+            queryset = queryset.filter(is_active=True)
+        return queryset.select_related('department', 'job_title')
 
-# المسار: Acrylic_sys/apps/employees/views.py
-from django.views.generic import CreateView, UpdateView # <-- استيراد CBVs
-from django.urls import reverse_lazy # <-- لتحديد روابط النجاح للـ CBVs
-from django.contrib.messages.views import SuccessMessageMixin # <-- لإظهار رسائل نجاح
-from django.contrib.auth.mixins import LoginRequiredMixin # <-- للـ CBVs بدلاً من decorator
-from .forms import EmployeeForm # <-- استيراد الفورم الذي أنشأناه
+class EmployeeDetailView(LoginRequiredMixin, DetailView):
+    model = Employee
+    template_name = 'employees/employee_detail.html'
+    context_object_name = 'employee'
 
-
-
-
-# View لعرض قائمة الموظفين
-@login_required # يتطلب أن يكون المستخدم مسجل الدخول للوصول لهذه الصفحة
-def employee_list_view(request):
-    # جلب جميع الموظفين الذين حالتهم نشطة (is_active=True)
-    # وترتيبهم حسب الاسم الكامل
-    employees = Employee.objects.filter(is_active=True).order_by('full_name')
-
-    # البيانات التي سيتم تمريرها إلى القالب
-    context = {
-        'employees': employees,
-        'page_title': 'قائمة الموظفين' # يمكن استخدام هذا المتغير في القالب إذا أردت
-    }
-    # عرض القالب وتمرير البيانات إليه
-    return render(request, 'employees/employee_list.html', context)
-
-@login_required
-def employee_detail_view(request, pk): # لاحظ استقبال معامل pk من الـ URL
-    # جلب الموظف المطلوب باستخدام pk، أو إظهار خطأ 404 إذا لم يكن موجودًا
-    employee = get_object_or_404(Employee, pk=pk)
-
-    # البيانات التي سيتم تمريرها للقالب
-    context = {
-        'employee': employee,
-        'page_title': f'تفاصيل الموظف: {employee.full_name}' # عنوان ديناميكي للصفحة
-    }
-    # عرض قالب التفاصيل وتمرير بيانات الموظف إليه
-    return render(request, 'employees/employee_detail.html', context)
-
-
-
-# --- أضف الكلاسات التالية ---
-
-# View لإضافة موظف جديد (Class-Based View)
-class EmployeeCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
-    model = Employee                # النموذج الذي نعمل عليه
-    form_class = EmployeeForm       # الفورم الذي سيتم استخدامه
-    template_name = 'employees/employee_add.html' # القالب الذي سيعرض الفورم
-    success_url = reverse_lazy('employees:employee_list') # الرابط الذي يتم التوجيه إليه بعد النجاح
-    success_message = "تمت إضافة الموظف %(full_name)s بنجاح!" # رسالة تظهر للمستخدم بعد النجاح
-
-    def get_success_message(self, cleaned_data):
-        # تخصيص رسالة النجاح لتشمل اسم الموظف
-        return self.success_message % dict(
-            cleaned_data,
-            full_name=self.object.full_name,
-        )
-        
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_title'] = 'إضافة موظف جديد'
-        context['cancel_url'] = reverse_lazy('employees:employee_list')  # تأكد من أن هذا هو اسم نمط الـ URL الصحيح
+        context['title'] = _("تفاصيل الموظف")
         return context
 
+class EmployeeCreateView(LoginRequiredMixin, CreateView):
+    model = Employee
+    form_class = EmployeeForm
+    template_name = 'employees/employee_add.html'
 
+    def form_valid(self, form):
+        messages.success(self.request, _("تم إضافة الموظف بنجاح"))
+        return super().form_valid(form)
 
+    def get_success_url(self):
+        return reverse_lazy('employees:employee_detail', kwargs={'pk': self.object.pk})
 
-# View لتعديل بيانات موظف (Class-Based View)
-class EmployeeUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class EmployeeUpdateView(LoginRequiredMixin, UpdateView):
     model = Employee
     form_class = EmployeeForm
     template_name = 'employees/employee_edit.html'
-    # success_url = reverse_lazy('employees:employee_list') # يمكن التوجيه للقائمة أو للتفاصيل
-    success_message = "تم تحديث بيانات الموظف %(full_name)s بنجاح!"
 
-    def get_success_url(self):
-        # التوجيه إلى صفحة تفاصيل نفس الموظف بعد التعديل
-        return reverse_lazy('employees:employee_detail', kwargs={'pk': self.object.pk})
-
-    def get_success_message(self, cleaned_data):
-        # تخصيص رسالة النجاح
-        return self.success_message % dict(
-            cleaned_data,
-            full_name=self.object.full_name,
-        )
+    def form_valid(self, form):
+        messages.success(self.request, _("تم تحديث بيانات الموظف بنجاح"))
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_title'] = f'تعديل: {self.object.full_name}'
-         # تمرير الكائن الحالي للقالب (مفيد للروابط أو العناوين) - UpdateView يمرره تلقائيًا باسم 'object' أو اسم النموذج
-        # context['employee'] = self.object
+        context['title'] = _("تعديل بيانات الموظف")
         return context
 
-# ---------------------------
+    def get_success_url(self):
+        return reverse_lazy('employees:employee_detail', kwargs={'pk': self.object.pk})
+
+class EmployeeDeleteView(LoginRequiredMixin, DeleteView):
+    model = Employee
+    template_name = 'employees/employee_confirm_delete.html'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, _("تم حذف الموظف بنجاح"))
+        return super().delete(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('employees:employee_list')
+
+def employee_search(request):
+    query = request.GET.get('q')
+    departments = request.GET.getlist('department')
+    status = request.GET.get('status')
+
+    employees = Employee.objects.all().select_related('department', 'job_title')
+
+    if query:
+        employees = employees.filter(full_name__icontains=query)
+
+    if departments:
+        employees = employees.filter(department__id__in=departments)
+
+    if status == 'active':
+        employees = employees.filter(is_active=True)
+    elif status == 'inactive':
+        employees = employees.filter(is_active=False)
+
+    context = {
+        'employees': employees,
+        'departments': Department.objects.all(),
+        'query': query,
+        'selected_departments': departments,
+        'status': status
+    }
+    return render(request, 'employees/employee_search.html', context)
