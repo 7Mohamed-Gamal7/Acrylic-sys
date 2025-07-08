@@ -1,0 +1,122 @@
+/* تنسيقات عامة للتطبيق */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2980b9;
+    --success-color: #27ae60;
+    --info-color: #3498db;
+    --warning-color: #f39c12;
+    --danger-color: #e74c3c;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --body-bg: #f5f6fa;
+    --card-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* تنسيقات أساسية */
+body {
+    font-family: 'Tajawal', 'Arial', sans-serif;
+    background-color: var(--body-bg);
+    direction: rtl;
+    text-align: right;
+}
+
+/* تحسينات لشريط التنقل */
+.navbar {
+    box-shadow: var(--card-shadow);
+}
+
+.navbar-brand {
+    font-weight: 700;
+}
+
+/* تحسينات للبطاقات */
+.card {
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    border-bottom: none;
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+}
+
+/* تحسينات للجداول */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* تحسينات للأزرار */
+.btn {
+    font-weight: 500;
+    padding: 0.375rem 1rem;
+}
+
+/* تنسيقات خاصة بصفحة الموظفين */
+.employee-avatar {
+    border: 3px solid #fff;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.employee-form-container {
+    max-width: 100%;
+}
+
+/* تنسيقات متجاوبة */
+@media (max-width: 768px) {
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .btn-group-sm .btn {
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+/* تحسينات للواجهة العربية */
+[dir="rtl"] .breadcrumb-item + .breadcrumb-item:before {
+    padding-right: 0;
+    padding-left: 0.5rem;
+    content: "\2039"; /* رمز السهم للعربية */
+}
+
+/* تنسيقات إضافية للنماذج */
+.form-control.datepicker {
+    background-color: #fff;
+    cursor: pointer;
+}
+
+/* تنسيقات للرسائل التحذيرية */
+.alert {
+    border-radius: 0.5rem;
+}
+
+/* تحسينات للهواتف */
+@media (max-width: 576px) {
+    .card-body {
+        padding: 0.75rem;
+    }
+    
+    .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    h4, h5 {
+        font-size: 1.1rem;
+    }
+}

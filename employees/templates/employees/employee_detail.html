@@ -1,106 +1,170 @@
 {% extends "base.html" %}
-{% load static %} <!-- قد نحتاجه لاحقًا -->
+{% load static %}
 
-{% block title %}تفاصيل: {{ employee.full_name }} - {{ block.super }}{% endblock %}
+{% block title %}تفاصيل الموظف - {{ employee.full_name }} - نظام Acrylic{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">الرئيسية</a></li>
             <li class="breadcrumb-item"><a href="{% url 'employees:employee_list' %}">قائمة الموظفين</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ employee.full_name }}</li>
+            <li class="breadcrumb-item active" aria-current="page">تفاصيل الموظف</li>
         </ol>
     </nav>
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center">
-            <h4 class="mb-0"><i class="bi bi-person-vcard me-2"></i>تفاصيل الموظف: {{ employee.full_name }}</h4>
-            <div>
-                <!-- زر إضافة موظف جديد -->
-                <a href="{% url 'employees:employee_edit' pk=employee.pk %}" class="btn btn-sm btn-outline-warning me-2">
-                    <i class="bi bi-pencil-square me-1"></i> تعديل
-                </a>
-                <!-- زر العودة للقائمة -->
-                <a href="{% url 'employees:employee_list' %}" class="btn btn-sm btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-1"></i> العودة للقائمة
-                </a>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>الملف الشخصي</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <div class="position-relative d-inline-block">
+                            <img src="{% static 'img/default-avatar.png' %}" 
+                                 class="img-thumbnail rounded-circle employee-avatar" 
+                                 alt="صورة الموظف" width="150" height="150">
+                            {% if employee.is_active %}
+                            <span class="position-absolute top-0 start-100 translate-middle p-2 bg-success border border-3 border-white rounded-circle">
+                                <span class="visually-hidden">نشط</span>
+                            </span>
+                            {% else %}
+                            <span class="position-absolute top-0 start-100 translate-middle p-2 bg-secondary border border-3 border-white rounded-circle">
+                                <span class="visually-hidden">غير نشط</span>
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <h4>{{ employee.full_name }}</h4>
+                    <h5 class="text-muted">{{ employee.job_title.title }}</h5>
+                    <p class="mb-1"><strong>كود الموظف:</strong> {{ employee.employee_code }}</p>
+                    <p class="mb-1"><strong>القسم:</strong> {{ employee.department.name }}</p>
+                    <p class="mb-1"><strong>تاريخ التعيين:</strong> {{ employee.hiring_date|date:"Y-m-d" }}</p>
+                    <p class="mb-1"><strong>الحالة:</strong> 
+                        {% if employee.is_active %}
+                            <span class="badge bg-success">نشط</span>
+                        {% else %}
+                            <span class="badge bg-secondary">غير نشط</span>
+                        {% endif %}
+                    </p>
+                </div>
             </div>
         </div>
 
-        <div class="card-body">
-            <div class="row g-3"> <!-- g-3 لإضافة مسافات بين الأعمدة والصفوف -->
-                <!-- قسم المعلومات الأساسية -->
-                <div class="col-md-6">
-                    <h5><i class="bi bi-info-circle-fill text-primary me-1"></i> معلومات أساسية</h5>
-                    <table class="table table-sm table-borderless">
-                        <tr><th style="width: 35%;">الكود الوظيفي:</th><td>{{ employee.employee_code }}</td></tr>
-                        <tr><th>الاسم الكامل:</th><td>{{ employee.full_name }}</td></tr>
-                        <tr><th>الرقم القومي:</th><td>{{ employee.national_id }}</td></tr>
-                        <tr><th>تاريخ الميلاد:</th><td>{{ employee.date_of_birth|date:"Y-m-d"|default:"-" }} (العمر: {{ employee.get_age|default:"-" }})</td></tr>
-                        <tr><th>النوع:</th><td>{{ employee.get_gender_display }}</td></tr> <!-- استخدام get_FIELD_display لعرض القيمة المقروءة -->
-                        <tr><th>الحالة الاجتماعية:</th><td>{{ employee.get_marital_status_display|default:"-" }}</td></tr>
-                        <tr><th>رقم الهاتف:</th><td>{{ employee.phone_number|default:"-" }}</td></tr>
-                        <tr><th>العنوان:</th><td>{{ employee.address|default:"-" }}</td></tr>
-                    </table>
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>المعلومات الأساسية</h5>
                 </div>
-
-                <!-- قسم المعلومات الوظيفية -->
-                <div class="col-md-6">
-                    <h5><i class="bi bi-briefcase-fill text-success me-1"></i> معلومات وظيفية</h5>
-                    <table class="table table-sm table-borderless">
-                        <tr><th style="width: 35%;">القسم:</th><td>{{ employee.department.name }}</td></tr>
-                        <tr><th>المسمى الوظيفي:</th><td>{{ employee.job_title.title }}</td></tr>
-                        <tr><th>تاريخ التعيين:</th><td>{{ employee.hiring_date|date:"Y-m-d" }}</td></tr>
-                        <tr><th>ساعات العمل القياسية:</th><td>{{ employee.standard_working_hours }} ساعة/يوم</td></tr>
-                        <tr><th>الحالة:</th><td>{% if employee.is_active %}<span class="badge bg-success">نشط</span>{% else %}<span class="badge bg-danger">غير نشط</span>{% endif %}</td></tr>
-                    </table>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>الرقم القومي:</strong> {{ employee.national_id }}</p>
+                            <p><strong>تاريخ الميلاد:</strong> {{ employee.date_of_birth|date:"Y-m-d" }}</p>
+                            <p><strong>العمر:</strong> {{ employee.get_age }} سنة</p>
+                            <p><strong>النوع:</strong> {{ employee.get_gender_display }}</p>
+                            <p><strong>الحالة الاجتماعية:</strong> {{ employee.get_marital_status_display }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>رقم الهاتف:</strong> {{ employee.phone_number }}</p>
+                            <p><strong>ساعات العمل:</strong> {{ employee.standard_working_hours }} ساعة/يوم</p>
+                            <p><strong>العنوان:</strong> {{ employee.address }}</p>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-                <!-- قسم المعلومات المالية -->
-                <div class="col-md-6 mt-md-3">
-                    <h5><i class="bi bi-cash-coin text-warning me-1"></i> معلومات مالية</h5>
-                    <table class="table table-sm table-borderless">
-                        <tr><th style="width: 35%;">المرتب الأساسي:</th><td>{{ employee.basic_salary|default:"0.00" }}</td></tr>
-                        <tr><th>بدل المواصلات:</th><td>{{ employee.transportation_allowance|default:"0.00" }}</td></tr>
-                        <tr><th>باقة الهاتف:</th><td>{{ employee.phone_package|default:"0.00" }}</td></tr>
-                    </table>
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-cash-stack me-2"></i>المعلومات المالية</h5>
                 </div>
-
-                 <!-- قسم معلومات التأمينات -->
-                 <div class="col-md-6 mt-md-3">
-                    <h5><i class="bi bi-shield-check text-info me-1"></i> معلومات التأمينات</h5>
-                    <table class="table table-sm table-borderless">
-                        <tr><th style="width: 35%;">الرقم التأميني:</th><td>{{ employee.social_insurance_number|default:"-" }}</td></tr>
-                        <tr><th>الحالة التأمينية:</th><td>{{ employee.get_insurance_status_display }}</td></tr>
-                        <tr><th>الأجر التأميني:</th><td>{{ employee.insured_salary|default:"-" }}</td></tr>
-                        <tr><th>تاريخ بدء الاشتراك:</th><td>{{ employee.insurance_subscription_start_date|date:"Y-m-d"|default:"-" }}</td></tr>
-                    </table>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p><strong>الراتب الأساسي:</strong> {{ employee.basic_salary }} ج.م</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>بدل مواصلات:</strong> {{ employee.transportation_allowance }} ج.م</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>بدل هاتف:</strong> {{ employee.phone_package }} ج.م</p>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="alert alert-info mt-3">
+                                <strong>إجمالي الراتب:</strong> {{ employee.total_salary }} ج.م
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-                <!-- قسم معلومات الإجازات والتقييم -->
-                <div class="col-md-6 mt-md-3">
-                    <h5><i class="bi bi-calendar-check-fill text-secondary me-1"></i> أرصدة الإجازات (السنوية)</h5>
-                    <table class="table table-sm table-borderless">
-                         <tr><th style="width: 35%;">الاعتيادية:</th><td>{{ employee.annual_leave_entitlement }} يوم</td></tr>
-                         <tr><th>العارضة:</th><td>{{ employee.casual_leave_entitlement }} يوم</td></tr>
-                         <tr><th>المرضية:</th><td>{{ employee.sick_leave_entitlement }} يوم</td></tr>
-                     </table>
-                 </div>
-                 <div class="col-md-6 mt-md-3">
-                     <h5><i class="bi bi-clipboard-data-fill text-muted me-1"></i> التقييم والزيادة</h5>
-                     <table class="table table-sm table-borderless">
-                          <tr><th style="width: 35%;">آخر تقييم:</th><td>{{ employee.performance_evaluation|default:"-" }}</td></tr>
-                          <tr><th>معدل الزيادة (%):</th><td>{{ employee.salary_increase_rate|default:"-" }}</td></tr>
-                      </table>
-                  </div>
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-shield-check me-2"></i>معلومات التأمينات</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>رقم التأمين الاجتماعي:</strong> {{ employee.social_insurance_number|default:"-" }}</p>
+                            <p><strong>حالة التأمين:</strong> {{ employee.get_insurance_status_display|default:"-" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>الراتب المؤمن عليه:</strong> {{ employee.insured_salary|default:"-" }} ج.ม</p>
+                            <p><strong>تاريخ بداية الاشتراك:</strong> 
+                                {% if employee.insurance_subscription_start_date %}
+                                    {{ employee.insurance_subscription_start_date|date:"Y-m-d" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            </div> <!-- / .row -->
-        </div> <!-- / .card-body -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-calendar-check me-2"></i>معلومات الإجازات والتقييم</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p><strong>رصيد الإجازة السنوية:</strong> {{ employee.annual_leave_entitlement }} يوم</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>رصيد الإجازة العرضية:</strong> {{ employee.casual_leave_entitlement }} يوم</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>رصيد الإجازة المرضية:</strong> {{ employee.sick_leave_entitlement }} يوم</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>تقييم الأداء:</strong> {{ employee.performance_evaluation|default:"-" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>نسبة زيادة الراتب:</strong> {{ employee.salary_increase_rate }}%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-         <div class="card-footer bg-light text-muted small">
-            تاريخ الإنشاء: {{ employee.created_at|date:"Y-m-d H:i" }} | آخر تحديث: {{ employee.updated_at|date:"Y-m-d H:i" }}
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{% url 'employees:employee_edit' employee.pk %}" class="btn btn-primary">
+                    <i class="bi bi-pencil-square me-2"></i>تعديل البيانات
+                </a>
+                <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-right-circle me-2"></i>العودة للقائمة
+                </a>
+            </div>
         </div>
+    </div>
+</div>
+{% endblock %}
 
-    </div> <!-- / .card -->
-</div> <!-- / .container -->
+{% block extra_scripts %}
+<script>
+$(document).ready(function() {
+    // يمكن إضافة أي سكربتات إضافية هنا
+});
+</script>
 {% endblock %}

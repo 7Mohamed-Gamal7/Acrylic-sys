@@ -1,116 +1,144 @@
-{% comment %}
-قالب جزئي لعرض نموذج الموظف.
-يستخدم في صفحتي الإضافة والتعديل.
-يتوقع متغير 'form' في الـ context.
-{% endcomment %}
+{% load crispy_forms_tags %}
 
-{% load static %}
-
-<form method="post" novalidate> <!-- novalidate لمنع التحقق المدمج في المتصفح والاعتماد على تحقق Django -->
-    {% csrf_token %}
-
-    {% if form.non_field_errors %}
-        <div class="alert alert-danger" role="alert">
-            {% for error in form.non_field_errors %}
-                {{ error }}
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <div class="row g-3 mb-3">
-        {% for field in form %}
-            <div class="col-md-6 {% if field.name == 'address' or field.name == 'performance_evaluation' %}col-md-12{% endif %}"> <!-- جعل حقول النص الكبيرة تأخذ عرضًا كاملاً -->
-                <div class="mb-2"> <!-- تقليل الهامش السفلي قليلاً -->
-                     <label for="{{ field.id_for_label }}" class="form-label {% if field.field.required %}fw-bold{% endif %}">
-                        {{ field.label }}
-                        {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
-                    </label>
-
-                    {% if field.name == 'department' or field.name == 'job_title' %}
-                         {{ field }} <!-- عرض حقل Select كما هو -->
-                         <div class="form-text">إذا لم تجد المطلوب، قم بإضافته من <a href="{% url 'admin:index' %}" target="_blank">لوحة التحكم</a>.</div>
-                    {% elif field.field.widget.input_type == 'checkbox' %}
-                        <div class="form-check">
-                            {{ field }} <!-- Widget is CheckboxInput -->
-                            <label class="form-check-label" for="{{ field.id_for_label }}">
-                                {{ field.help_text }}
-                            </label>
-                        </div>
-                    {% elif field.field.widget.input_type == 'select' %}
-                         {{ field }} <!-- عرض باقي حقول Select (مثل gender, status) -->
-                    {% else %}
-                         {{ field }} <!-- عرض باقي الحقول (text, number, date, textarea) -->
-                    {% endif %}
-
-                    {% if field.help_text and field.field.widget.input_type != 'checkbox' %}
-                        <div class="form-text">{{ field.help_text }}</div>
-                    {% endif %}
-
-                     {% if field.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in field.errors %}<span>{{ error }}</span>{% endfor %}
-                        </div>
-                    {% endif %}
+<div class="employee-form-container">
+    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+        {% csrf_token %}
+        
+        {# معلومات أساسية #}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="bi bi-person-vcard me-2"></i>المعلومات الأساسية</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        {{ form.employee_code|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.full_name|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.national_id|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.date_of_birth|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.gender|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.marital_status|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.phone_number|as_crispy_field }}
+                    </div>
+                    <div class="col-12">
+                        {{ form.address|as_crispy_field }}
+                    </div>
                 </div>
             </div>
-        {% endfor %}
-    </div>
+        </div>
 
-    <hr>
-    <div class="d-flex justify-content-end">
-         <a href="{{ request.META.HTTP_REFERER|default:cancel_url|default:'/employees/' }}" class="btn btn-secondary me-2">
-            <i class="bi bi-x-circle me-1"></i> إلغاء
-         </a>
-         <button type="submit" class="btn btn-success">
-            <i class="bi bi-check-circle-fill me-1"></i> {{ submit_button_text|default:'حفظ التغييرات' }}
-        </button>
-    </div>
-</form>
+        {# معلومات وظيفية #}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="bi bi-briefcase me-2"></i>المعلومات الوظيفية</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        {{ form.department|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.job_title|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.hiring_date|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.standard_working_hours|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.is_active|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-{% block form_extra_scripts %}
-<script>
-    // إضافة كلاسات Bootstrap وتنسيق حقول Select
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('form'); // استهداف الفورم الحالي
-        if (!form) return;
+        {# معلومات مالية #}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="bi bi-cash-coin me-2"></i>المعلومات المالية</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        {{ form.basic_salary|as_crispy_field }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.transportation_allowance|as_crispy_field }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.phone_package|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        form.querySelectorAll('input, select, textarea').forEach(function(element) {
-            // تخطي حقول الـ checkbox
-            if (element.type === 'checkbox') {
-                element.classList.add('form-check-input');
-                return;
-            }
-            // إضافة كلاس form-select لحقول select
-            if (element.tagName === 'SELECT') {
-                element.classList.add('form-select');
-            } else if (element.tagName === 'TEXTAREA') {
-                // إضافة كلاس form-control لحقول textarea
-                 element.classList.add('form-control');
-            } else if (element.type !== 'hidden' && element.type !== 'submit' && element.type !== 'button') {
-                // إضافة كلاس form-control لباقي حقول الإدخال المرئية
-                element.classList.add('form-control');
-            }
+        {# معلومات التأمينات #}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="bi bi-shield-check me-2"></i>معلومات التأمينات</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        {{ form.social_insurance_number|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.insurance_status|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.insured_salary|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.insurance_subscription_start_date|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            // جعل الحقول المطلوبة إجبارية في HTML (لتحسين تجربة المستخدم، التحقق الفعلي في Django)
-            // if (element.closest('.mb-2').querySelector('.form-label .text-danger')) {
-            //     element.required = true;
-            // }
-        });
-    });
-</script>
-{% comment %}
-<!-- لتحسين حقول Select (Department, JobTitle) باستخدام Select2 لاحقًا -->
-<!-- <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" /> -->
-<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
-<!-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> -->
-<!-- <script> -->
-<!-- $(document).ready(function() { -->
-<!--     $('#{{ form.department.id_for_label }}, #{{ form.job_title.id_for_label }}').select2({ -->
-<!--         placeholder: "اختر...", -->
-<!--         dir: "rtl", -->
-<!--         width: '100%' -->
-<!--     }); -->
-<!-- }); -->
-<!-- </script> -->
-{% endcomment %}
-{% endblock %}
+        {# معلومات الإجازات والتقييم #}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="bi bi-calendar-check me-2"></i>الإجازات والتقييم</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        {{ form.annual_leave_entitlement|as_crispy_field }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.casual_leave_entitlement|as_crispy_field }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.sick_leave_entitlement|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.performance_evaluation|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.salary_increase_rate|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="bi bi-check-lg me-2"></i>{{ submit_button_text }}
+            </button>
+            <a href="{{ cancel_url }}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg me-2"></i>إلغاء
+            </a>
+        </div>

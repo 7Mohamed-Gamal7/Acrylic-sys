@@ -1,78 +1,73 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import ValidationError
-from django.utils import timezone
 from .models import Employee, Department, JobTitle
 
 class EmployeeForm(forms.ModelForm):
     class Meta:
         model = Employee
-        exclude = ['created_at', 'updated_at']
+        fields = '__all__'
         widgets = {
-            'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'hiring_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'insurance_subscription_start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'address': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
-    )
-    insurance_subscription_start_date = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        required=False,
-        label="تاريخ بدء الاشتراك في التأمينات"
-    )
-
-    # --- إعادة تعريف حقول ForeignKey لاستخدام Select2 أو ما شابه لاحقًا (اختياري) ---
-    # حاليًا ستظهر كقائمة منسدلة عادية
-    # department = forms.ModelChoiceField(queryset=Department.objects.all(), label="القسم")
-    # job_title = forms.ModelChoiceField(queryset=JobTitle.objects.all(), label="المسمى الوظيفي")
-
-    class Meta:
-        model = Employee # النموذج الذي يرتبط به هذا الفورم
-        # تحديد الحقول التي ستظهر في الفورم وترتيبها
-        fields = [
-            'employee_code', 'full_name', 'national_id', 'date_of_birth',
-            'gender', 'marital_status', 'phone_number', 'address',
-            'department', 'job_title', 'hiring_date', 'standard_working_hours',
-            'basic_salary', 'transportation_allowance', 'phone_package',
-            'social_insurance_number', 'insurance_status', 'insured_salary',
-            'insurance_subscription_start_date',
-            'annual_leave_entitlement', 'casual_leave_entitlement', 'sick_leave_entitlement',
-            'performance_evaluation', 'salary_increase_rate',
-            'is_active', # إضافة حقل الحالة للسماح بتعطيل الموظف
-        ]
-        # يمكنك تخصيص الـ widgets أو الـ labels هنا أيضًا إذا أردت
-        widgets = {
-            'address': forms.Textarea(attrs={'rows': 3}), # جعل حقل العنوان أكبر قليلاً
-            'performance_evaluation': forms.Textarea(attrs={'rows': 3}),
-            # --- إضافة كلاسات Bootstrap هنا (طريقة أخرى بدلاً من JS) ---
-            # لكن استخدام JS في القالب أكثر مرونة لأنه لا يكرر الكلاس لكل حقل
-            # 'employee_code': forms.TextInput(attrs={'class': 'form-control'}),
-            # 'full_name': forms.TextInput(attrs={'class': 'form-control'}),
-            # ... وهكذا لباقي الحقول
+            'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
+            'hiring_date': forms.DateInput(attrs={'type': 'date'}),
+            'insurance_subscription_start_date': forms.DateInput(attrs={'type': 'date'}),
+            'address': forms.Textarea(attrs={'rows': 3}),
+            'description': forms.Textarea(attrs={'rows': 3}),
         }
-        # يمكنك تحديد الـ labels هنا أيضًا إذا لم تكن الأسماء الافتراضية مناسبة
-        # labels = {
-        #     'employee_code': 'كود الموظف المميز',
-        # }
-        # يمكنك إضافة help_texts هنا أيضًا
-        # help_texts = {
-        #     'national_id': 'أدخل الرقم القومي المكون من 14 رقمًا.',
-        # }
+        labels = {
+            'employee_code': _('كود الموظف'),
+            'full_name': _('الاسم بالكامل'),
+            'national_id': _('الرقم القومي'),
+            'date_of_birth': _('تاريخ الميلاد'),
+            'gender': _('النوع'),
+            'marital_status': _('الحالة الاجتماعية'),
+            'phone_number': _('رقم الهاتف'),
+            'address': _('العنوان'),
+            'department': _('القسم'),
+            'job_title': _('المسمى الوظيفي'),
+            'hiring_date': _('تاريخ التعيين'),
+            'standard_working_hours': _('ساعات العمل المعتادة'),
+            'is_active': _('نشط'),
+            'basic_salary': _('الراتب الأساسي'),
+            'transportation_allowance': _('بدل مواصلات'),
+            'phone_package': _('بدل هاتف'),
+            'social_insurance_number': _('رقم التأمين الاجتماعي'),
+            'insurance_status': _('حالة التأمين'),
+            'insured_salary': _('الراتب المؤمن عليه'),
+            'insurance_subscription_start_date': _('تاريخ بداية الاشتراك'),
+            'annual_leave_entitlement': _('رصيد الإجازة السنوية'),
+            'casual_leave_entitlement': _('رصيد الإجازة العرضية'),
+            'sick_leave_entitlement': _('رصيد الإجازة المرضية'),
+            'performance_evaluation': _('تقييم الأداء'),
+            'salary_increase_rate': _('نسبة زيادة الراتب'),
+        }
+        help_texts = {
+            'employee_code': _('كود فريد لكل موظف'),
+            'national_id': _('يجب إدخال الرقم القومي المكون من 14 رقم'),
+            'phone_number': _('قم بإدخال رقم الهاتف بالصيغة الدولية إن أمكن'),
+        }
 
-    # دالة لتنظيف البيانات (مثال: التحقق من أن الكود الوظيفي فريد بشكل حساس لحالة الأحرف إذا أردت)
-    # def clean_employee_code(self):
-    #     code = self.cleaned_data.get('employee_code')
-    #     # استبعاد الحالة الحالية عند التعديل
-    #     instance_pk = self.instance.pk if self.instance else None
-    #     if Employee.objects.filter(employee_code__iexact=code).exclude(pk=instance_pk).exists():
-    #         raise forms.ValidationError("هذا الكود الوظيفي مستخدم بالفعل.")
-    #     return code
-
-    # def clean_national_id(self):
-    #     nid = self.cleaned_data.get('national_id')
-    #     instance_pk = self.instance.pk if self.instance else None
-    #     if Employee.objects.filter(national_id=nid).exclude(pk=instance_pk).exists():
-    #         raise forms.ValidationError("هذا الرقم القومي مسجل لموظف آخر.")
-    #     return nid
-
-    # ملاحظة: التحقق من التفرد (unique=True) في النموذج كافٍ لمعظم الحالات،
-    # لكن دوال clean_ تتيح لك إضافة منطق تحقق أكثر تعقيدًا.
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['department'].queryset = Department.objects.all()
+        self.fields['job_title'].queryset = JobTitle.objects.all()
+        
+        # إضافة كلاس Bootstrap لجميع الحقول
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+            
+        # تخصيص كلاسات إضافية لحقول محددة
+        self.fields['date_of_birth'].widget.attrs.update({'class': 'form-control datepicker'})
+        self.fields['hiring_date'].widget.attrs.update({'class': 'form-control datepicker'})
+        self.fields['insurance_subscription_start_date'].widget.attrs.update({'class': 'form-control datepicker'})
+        
+    def clean_national_id(self):
+        national_id = self.cleaned_data.get('national_id')
+        if len(national_id) != 14:
+            raise forms.ValidationError(_("الرقم القومي يجب أن يتكون من 14 رقم"))
+        return national_id
+        
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get('phone_number')
+        if not phone_number.isdigit():
+            raise forms.ValidationError(_("رقم الهاتف يجب أن يحتوي على أرقام فقط"))
+        return phone_number

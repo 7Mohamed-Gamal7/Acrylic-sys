@@ -119,13 +119,27 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ar'
 
-TIME_ZONE = 'UTC'
+LANGUAGES = [
+    ('ar', ('العربية')),
+    ('en', ('English')),
+]
+
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),
+]
+
+TIME_ZONE = 'Africa/Cairo'
 
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
+
+# إعدادات الترجمة
+USE_THOUSAND_SEPARATOR = True
+THOUSAND_SEPARATOR = ','
+DECIMAL_SEPARATOR = '.'
 
 
 # Static files (CSS, JavaScript, Images)
@@ -135,9 +149,21 @@ STATIC_URL = 'static/'
 
 
 
-LOGIN_URL = 'login' # URL لتسجيل الدخول
-LOGIN_REDIRECT_URL = 'employees:employee_list' # URL لإعادة التوجيه بعد تسجيل الدخول
-LOGOUT_REDIRECT_URL = 'login' # URL لإعادة التوجيه بعد تسجيل الخروج
+# إعدادات المصادقة
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'employees:employee_list'
+LOGOUT_REDIRECT_URL = 'login'
+
+# إعدادات الوسائط
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# إعدادات الملفات الثابتة
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
