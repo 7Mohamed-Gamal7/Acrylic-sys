@@ -1,9 +1,48 @@
-# المسار: Acrylic_sys/apps/employees/admin.py
-
 from django.contrib import admin
-from django.utils.translation import gettext_lazy as _ # Import translation function
-from .models import Department, JobTitle, Employee # استيراد النماذج من نفس المجلد
 from django.utils.translation import gettext_lazy as _
+from .models import (
+    Department, 
+    JobTitle, 
+    Employee,
+    ZKDevice, 
+    ZKAttendanceRecord,
+    ZKSyncLog, 
+    EmployeeDeviceMapping
+)
+
+@admin.register(ZKDevice)
+class ZKDeviceAdmin(admin.ModelAdmin):
+    list_display = ('device_name', 'ip_address', 'port', 'status', 'location', 'last_sync')
+    list_filter = ('status', 'location')
+    search_fields = ('device_name', 'ip_address', 'serial_number', 'model')
+    ordering = ('device_name',)
+    list_editable = ('status',)
+    list_per_page = 20
+
+@admin.register(ZKAttendanceRecord)
+class ZKAttendanceRecordAdmin(admin.ModelAdmin):
+    list_display = ('employee', 'device', 'record_time', 'status', 'is_processed')
+    list_filter = ('status', 'is_processed', 'device')
+    search_fields = ('employee__full_name', 'device__device_name')
+    date_hierarchy = 'record_time'
+    ordering = ('-record_time',)
+    readonly_fields = ('raw_data',)
+
+@admin.register(ZKSyncLog) 
+class ZKSyncLogAdmin(admin.ModelAdmin):
+    list_display = ('device', 'sync_time', 'records_fetched', 'status')
+    list_filter = ('device', 'status')
+    search_fields = ('device__device_name', 'status')
+    ordering = ('-sync_time',)
+    readonly_fields = ('device', 'sync_time', 'records_fetched', 'status', 'error_message', 'duration')
+
+@admin.register(EmployeeDeviceMapping)
+class EmployeeDeviceMappingAdmin(admin.ModelAdmin):
+    list_display = ('employee', 'device', 'device_user_id', 'last_updated')
+    list_filter = ('device',)
+    search_fields = ('employee__full_name', 'device__device_name', 'device_user_id')
+    raw_id_fields = ('employee', 'device')
+    ordering = ('employee',)
 
 # تخصيص واجهة عرض الأقسام
 @admin.register(Department)

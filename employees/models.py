@@ -101,3 +101,82 @@ class Employee(models.Model):
     @property
     def total_salary(self):
         return self.basic_salary + self.transportation_allowance + self.phone_package
+
+class ZKDevice(models.Model):
+    STATUS_CHOICES = [
+        ('active', _('نشط')),
+        ('inactive', _('غير نشط')),
+        ('maintenance', _('صيانة')),
+    ]
+
+    device_name = models.CharField(_("اسم الجهاز"), max_length=100)
+    ip_address = models.CharField(_("عنوان IP"), max_length=15)
+    port = models.PositiveIntegerField(_("المنفذ"), default=4370)
+    serial_number = models.CharField(_("الرقم التسلسلي"), max_length=50, unique=True)
+    model = models.CharField(_("الموديل"), max_length=50)
+    status = models.CharField(_("الحالة"), max_length=11, choices=STATUS_CHOICES, default='active')
+    last_sync = models.DateTimeField(_("آخر مزامنة"), null=True, blank=True)
+    sync_interval = models.PositiveIntegerField(_("فترة المزامنة (دقائق)"), default=15)
+    location = models.CharField(_("الموقع"), max_length=100)
+    notes = models.TextField(_("ملاحظات"), blank=True)
+
+    class Meta:
+        verbose_name = _("جهاز ZK")
+        verbose_name_plural = _("أجهزة ZK")
+
+    def __str__(self):
+        return f"{self.device_name} ({self.ip_address})"
+
+class ZKAttendanceRecord(models.Model):
+    STATUS_CHOICES = [
+        ('check_in', _('حضور')),
+        ('check_out', _('انصراف')),
+    ]
+
+    device = models.ForeignKey(ZKDevice, on_delete=models.CASCADE, verbose_name=_("الجهاز"))
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, verbose_name=_("الموظف"))
+    record_time = models.DateTimeField(_("وقت التسجيل"))
+    status = models.CharField(_("الحالة"), max_length=10, choices=STATUS_CHOICES)
+    device_user_id = models.CharField(_("معرف المستخدم بالجهاز"), max_length=20)
+    is_processed = models.BooleanField(_("تمت معالجته"), default=False)
+    raw_data = models.TextField(_("البيانات الخام"), blank=True)
+
+    class Meta:
+        verbose_name = _("سجل حضور ZK")
+        verbose_name_plural = _("سجلات حضور ZK")
+        indexes = [
+            models.Index(fields=['employee', 'record_time']),
+        ]
+
+    def __str__(self):
+        return f"{self.employee} - {self.get_status_display()} @ {self.record_time}"
+
+class ZKSyncLog(models.Model):
+    device = models.ForeignKey(ZKDevice, on_delete=models.CASCADE, verbose_name=_("الجهاز"))
+    sync_time = models.DateTimeField(_("وقت المزامنة"), auto_now_add=True)
+    records_fetched = models.PositiveIntegerField(_("عدد السجلات المستلمة"))
+    status = models.CharField(_("حالة المزامنة"), max_length=20)
+    error_message = models.TextField(_("رسالة الخطأ"), blank=True)
+    duration = models.DurationField(_("مدة المزامنة"), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("سجل مزامنة ZK")
+        verbose_name_plural = _("سجلات مزامنة ZK")
+        ordering = ['-sync_time']
+
+    def __str__(self):
+        return f"{self.device} @ {self.sync_time}"
+
+class EmployeeDeviceMapping(models.Model):
+    employee = models.OneToOneField(Employee, on_delete=models.CASCADE, verbose_name=_("الموظف"))
+    device = models.ForeignKey(ZKDevice, on_delete=models.CASCADE, verbose_name=_("الجهاز"))
+    device_user_id = models.CharField(_("معرف المستخدم بالجهاز"), max_length=20, unique=True)
+    last_updated = models.DateTimeField(_("آخر تحديث"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("تعيين موظف لجهاز")
+        verbose_name_plural = _("تعيينات الموظفين للأجهزة")
+        unique_together = ('employee', 'device')
+
+    def __str__(self):
+        return f"{self.employee} → {self.device}"
