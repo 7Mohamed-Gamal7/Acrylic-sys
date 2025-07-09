@@ -1,32 +1,25 @@
-# المسار: Acrylic_sys/acrylic_sys/urls.py
-
 from django.contrib import admin
 from django.urls import path, include
-from django.contrib.auth import views as auth_views # <-- استيراد واجهات المصادقة المدمجة
+from django.contrib.auth import views as auth_views
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # روابط المصادقة المدمجة
-    path('',
+    # Dashboard route
+    path('', TemplateView.as_view(template_name='dashboard.html'), name='dashboard'),
+
+    # Authentication routes
+    path('login/',
          auth_views.LoginView.as_view(
-             template_name='registration/login.html' # تحديد قالب تسجيل الدخول
+             template_name='registration/login.html'
          ),
-         name='login'), # اسم الرابط لصفحة الدخول
+         name='login'),
 
     path('logout/',
-         auth_views.LogoutView.as_view(
-             # next_page='login' # يمكنك تحديد الصفحة التالية هنا أو الاعتماد على LOGOUT_REDIRECT_URL في settings.py
-         ),
-         name='logout'), # اسم الرابط لصفحة الخروج
+         auth_views.LogoutView.as_view(),
+         name='logout'),
 
-    # يمكنك إضافة روابط استعادة كلمة المرور هنا لاحقًا إذا أردت
-    # path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
-    # ... etc ...
-
-    # تضمين روابط تطبيق الموظفين
+    # Employees app routes
     path('employees/', include('employees.urls', namespace='employees')),
-
-    # يمكنك إضافة رابط للصفحة الرئيسية هنا لاحقًا
-    # path('', include('apps.dashboard.urls', namespace='dashboard')),
 ]

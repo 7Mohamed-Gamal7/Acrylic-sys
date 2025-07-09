@@ -11,10 +11,6 @@ router = routers.DefaultRouter()
 router.register(r'api/departments', views.DepartmentViewSet)
 router.register(r'api/job-titles', views.JobTitleViewSet)
 router.register(r'api/employees', views.EmployeeViewSet)
-router.register(r'api/devices', views.ZKDeviceViewSet)
-router.register(r'api/attendance', views.ZKAttendanceRecordViewSet)
-router.register(r'api/sync-logs', views.ZKSyncLogViewSet)
-router.register(r'api/device-mappings', views.EmployeeDeviceMappingViewSet)
 
 urlpatterns = [
     # Standard Employee URLs
@@ -29,5 +25,5 @@ urlpatterns = [
     path('api/auth/', obtain_auth_token, name='api_token_auth'),
     
     # Include API router URLs
-    path('', include(router.urls)),
+    path('api/', include(router.urls)),
 ]

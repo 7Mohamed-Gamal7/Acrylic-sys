@@ -172,7 +172,7 @@ STATIC_URL = 'static/'
 
 # إعدادات المصادقة
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'employees:employee_list'
+LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
 
 # إعدادات الوسائط

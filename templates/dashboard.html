@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/custom.css' %}">
+<style>
+.sidebar-toggle {
+  display: none;
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+.sidebar-toggle i {
+  font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: -250px;
+    transition: all 0.3s;
+    z-index: 1000;
+    height: 100vh;
+  }
+  
+  .sidebar.mobile-show {
+    left: 0;
+  }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h3>لوحة التحكم</h3>
+    </div>
+    <div class="sidebar-menu">
+      <div class="menu-section">
+        <h4>الموارد البشرية</h4>
+        <ul>
+          <li>
+            <a href="{% url 'employees:employee_list' %}">
+              <i class="fas fa-users"></i>
+              <span>بيانات الموظفين</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" onclick="alert('صفحة الحضور والانصراف قيد التطوير')">
+              <i class="fas fa-user-clock"></i>
+              <span>الحضور والانصراف</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" onclick="alert('صفحة الإجازات قيد التطوير')">
+              <i class="fas fa-calendar-alt"></i>
+              <span>الإجازات</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" onclick="alert('صفحة التقارير قيد التطوير')">
+              <i class="fas fa-chart-bar"></i>
+              <span>التقارير</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="welcome-card">
+      <h2><i class="fas fa-home"></i> مرحباً بك في نظام أكريليك لإدارة الموارد البشرية</h2>
+      <p class="intro-text">
+        نظام متكامل لإدارة شؤون الموظفين، الحضور، الإجازات والمزيد. 
+        يمكنك بدء إدارة مواردك البشرية بكل سهولة من خلال القائمة الجانبية.
+      </p>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <i class="fas fa-users"></i>
+          <h3>إدارة الموظفين</h3>
+          <p>سجل كامل ببيانات الموظفين وتفاصيلهم الوظيفية</p>
+        </div>
+        
+        <div class="feature-card">
+          <i class="fas fa-user-clock"></i>
+          <h3>الحضور والانصراف</h3>
+          <p>نظام دقيق لتسجيل أوقات الدخول والخروج</p>
+        </div>
+        
+        <div class="feature-card">
+          <i class="fas fa-calendar-alt"></i>
+          <h3>نظام الإجازات</h3>
+          <p>إدارة طلبات الإجازات والموافقات</p>
+        </div>
+        
+        <div class="feature-card">
+          <i class="fas fa-chart-bar"></i>
+          <h3>التقارير والاحصائيات</h3>
+          <p>تقارير شاملة عن أداء الموظفين</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
